@@ -2,6 +2,11 @@ server:
   port: 8888
   
 spring:
+  okhttp:    connect-time-out: 10000
+    read-time-out: 60000
+    write-time-out: 10000
+  #自定义事务配置
+  tx:    point-cut-expression: execution(* *..*Service.*(..))
   # 数据库连接池配置
   datasource:
     druid:
@@ -16,7 +21,7 @@ spring:
       min-evictable-idle-time-millis: 300000
       validation-query: select 'x'
       test-while-idle: true
-      connection-properties: {characterEncoding: 'UTF-8'}
+#      connection-properties: {characterEncoding: 'UTF-8'}
       # 数据库连接池控制台相关
       stat-view-servlet:
         login-username: admin
@@ -30,17 +35,10 @@ spring:
     port: 6379
     password: root
     timeout: 3000ms
-    # 2.2.2redis客户端实现为lettuce
-    lettuce:
-      pool:
-        min-idle: 5       #最小空闲连接数
-        max-idle: 10      #最大空闲连接数
-        max-active: 20    #最大连接数
-        max-wait: 10000ms    #获取连接的最大等待时间（使用负值没有限制）
   
   #aop相关配置（见AopAutoConfiguration）
-  aop:
-    proxy-target-class: true #为true时用cglib代理，为false时用jdk代理
+#  aop:
+#    proxy-target-class: true #为true时用cglib代理，为false时用jdk代理
     
   task:
     # @Async异步任务线程池配置
@@ -53,8 +51,6 @@ spring:
       pool:
         size: 5
 
-  #springMVC相关配置  mvc:    date-format: yyyy-MM-dd HH:mm:ss
-        
      
 #mybatis配置
 mybatis:

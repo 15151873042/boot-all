@@ -6,66 +6,39 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>boot-service</artifactId>
-  
-  
-  
   <dependencies>
   	<dependency>
   		<groupId>com.hp</groupId>
     	<artifactId>boot-dao</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
   	</dependency>
-  	
-  	<!-- 引入该jar包的原因只是为了引用aspectjweaverjar包，
-  	如果使用spring-aop中的AspectJExpressionPointcut，会依赖aspectjweaverjar中的某些类 -->
+    <dependency>
+        <groupId>com.hp.boot</groupId>
+        <artifactId>hp-spring-boot-start-web</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
   	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-aop</artifactId>
-	</dependency>
-	
-<!-- 	<dependency> -->
-<!-- 	    <groupId>org.springframework.boot</groupId> -->
-<!-- 	    <artifactId>spring-boot-starter-security</artifactId> -->
-<!-- 	</dependency> -->
+        <groupId>com.hp.boot</groupId>
+        <artifactId>hp-spring-boot-start-redis</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+  	</dependency>
   	
-  	<dependency>
-	    <groupId>org.redisson</groupId>
-	    <artifactId>redisson-spring-boot-starter</artifactId>
-	    <version>3.13.1</version>
-	</dependency>
-  	
-  	<!-- 集成redis -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-data-redis</artifactId>
-	</dependency>
-	<!-- redis lettuce客户端依赖 commons-pool-->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-pool2</artifactId>
-	</dependency>
-	
-	<!-- jackson -->
-	<dependency>
-	    <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-databind</artifactId>
-	</dependency>
-	
-	<!-- okhttp -->
-	<dependency>
-	    <groupId>com.squareup.okhttp3</groupId>
-	    <artifactId>okhttp</artifactId>
-	</dependency>
-	
 	<dependency>
 	    <groupId>cn.hutool</groupId>
 	    <artifactId>hutool-all</artifactId>
 	    <version>5.3.8</version>
 	</dependency>
 	
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	</dependency>
+	
+	<!-- 集成redis -->
+<!--     <dependency> -->
+<!--         <groupId>org.springframework.boot</groupId> -->
+<!--         <artifactId>spring-boot-starter-data-redis</artifactId> -->
+<!--     </dependency> -->
+    <!-- redis lettuce客户端依赖 commons-pool-->
+<!--     <dependency> -->
+<!--         <groupId>org.apache.commons</groupId> -->
+<!--         <artifactId>commons-pool2</artifactId> -->
+<!--     </dependency> -->
   </dependencies>
 </project>
