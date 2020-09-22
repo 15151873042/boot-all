@@ -1,0 +1,46 @@
+ package com.hp.test;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * 
+ * @author 胡鹏
+ * @date 2020/08/14
+ */
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Lock {
+
+    /**
+     *
+     * @Descripton 锁的前缀字符串
+     * @author 胡鹏
+     * @date 2020年8月14日 上午11:42:32
+     * @return
+     */
+    String lockKeyPrefix() ;
+    
+    /**
+     *
+     * @Descripton 获取锁之后的锁定时长，默认5秒（单位秒：）
+     * @author 胡鹏
+     * @date 2020年8月14日 下午2:11:58
+     * @return
+     */
+    int lockSecond() default 5;
+    
+    
+    /**
+     *
+     * @Descripton 尝试获取锁的等待时长，默认一次获取锁失败则不在尝试获取锁
+     * @author 胡鹏
+     * @date 2020年8月14日 下午2:13:09
+     * @return
+     */
+    int timeOutSecond() default 0;
+    
+    
+}

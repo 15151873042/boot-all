@@ -1,11 +1,18 @@
 server:
   port: 8888
+#  servlet:#    session:#      timeout: 60
   
 spring:
+  session:    store-type: redis
+    redis:      flush-mode: on_save
+      namespace: spring:session
+    
+
+  # 远程调用
   okhttp:    connect-time-out: 10000
     read-time-out: 60000
     write-time-out: 10000
-  #自定义事务配置
+  # 自定义事务配置
   tx:    point-cut-expression: execution(* *..*Service.*(..))
   # 数据库连接池配置
   datasource:

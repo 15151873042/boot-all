@@ -1,0 +1,77 @@
+ package com.hp.test;
+
+import java.lang.reflect.Method;
+
+import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.Order;
+
+import com.got.common.cache.jedis.service.JedisCache;
+import com.got.common.core.enums.Enums.SysCode;
+import com.got.common.core.util.IDGenerator;
+import com.got.common.core.vo.ExecuteResult;
+import com.got.test.advice.Lock;
+
+/**
+ * @author 胡鹏
+ * @date 2020/08/14
+ */
+ @Aspect
+ @Order(Ordered.LOWEST_PRECEDENCE)
+public class LockAdvice {
+     
+     private Logger logger = LoggerFactory.getLogger(getClass());
+     
+     @Autowired
+     private JedisCache jedisCache;
+     
+     /*
+      *@annotation的匹配规则见 org.aspectj.weaver.patterns.AnnotationPointcut.matchInternal(Shadow) ->
+      *annotationTypePattern.matches(toMatchAgainst);
+      */
+     @Around(value="@annotation(com.got.test.advice.Lock)")
+     public Object lock(ProceedingJoinPoint  joinPoint) throws Throwable {
+         MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+         Method method = signature.getMethod();
+         Lock lock = AnnotationUtils.getAnnotation(method, Lock.class);
+         lockParamCheck(lock);
+         Object[] args = joinPoint.getArgs();
+         String lockKeysuffix = (String)args[0];
+         String lockKey = lock.lockKeyPrefix() + lockKeysuffix;
+         int lockSecond = lock.lockSecond();
+         String lockValue = IDGenerator.genShortId();
+         int lockTimeOut = lock.timeOutSecond();
+         
+         boolean lockFlag = false;
+         if (lockTimeOut <= 0) {
+             lockFlag = jedisCache.tryLock(lockKey, lockValue, (long)lockSecond);
+         } else {
+             lockFlag = jedisCache.getWaitLock(lockKey, lockValue, (long)lockSecond, (long)lockTimeOut);
+         }
+         if (Boolean.FALSE.equals(lockFlag)) {
+             logger.info("===={}方法获取锁失败====", method);
+             return new ExecuteResult<>(SysCode.GET_ERROR);
+         }
+         Object proceed = joinPoint.proceed();
+         jedisCache.unLock(lockKey, lockValue);
+         return proceed;
+     }
+     
+     
+    private void lockParamCheck(Lock lock) {
+        if (StringUtils.isEmpty(lock.lockKeyPrefix())) {
+            throw new IllegalArgumentException("lock.lockKeyPrefix不能为空");
+        }
+        if (lock.lockSecond() <= 0) {
+            throw new IllegalArgumentException("lock.lockSecond不能小于1");
+        }
+    }
+}

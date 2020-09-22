@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hp.base.mapper.DictMapper">
+  <!-- 映射实体类的数据类型配置 -->
+  <resultMap id="BaseResultMap" type="com.hp.base.model.Dict">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="group_key" jdbcType="VARCHAR" property="groupKey" />
+    <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+    <result column="dict_key" jdbcType="VARCHAR" property="dictKey" />
+    <result column="dict_value" jdbcType="VARCHAR" property="dictValue" />
+    <result column="seq_no" jdbcType="INTEGER" property="seqNo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+  <sql id="base_sql"> t.group_key, t.group_name, t.dict_key, t.dict_value, t.seq_no </sql>
+
+  <select id="getAllDictList" resultMap="BaseResultMap">
+    select <include refid="base_sql"></include>
+    from app_base_dict t
+    order by t.group_key,t.seq_no
+  </select>
+  
+  
+  <update id="updateIncreVersion">
+	UPDATE app_base_dict 
+	SET version = version + 1
+	where id = #{id}
+  </update>
+  
+  <select id="getListPage" resultMap="BaseResultMap">
+    select id, group_key, dict_key from app_base_dict
+  </select>
+</mapper>

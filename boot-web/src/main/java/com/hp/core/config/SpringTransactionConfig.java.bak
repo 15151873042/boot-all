@@ -1,0 +1,106 @@
+package com.hp.core.config;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
+import org.springframework.transaction.interceptor.RollbackRuleAttribute;
+import org.springframework.transaction.interceptor.RuleBasedTransactionAttribute;
+import org.springframework.transaction.interceptor.TransactionAttribute;
+import org.springframework.transaction.interceptor.TransactionAttributeSource;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
+
+/**
+ * 自定义aop事务配置事务
+ * 
+ * @author 胡鹏
+ *
+ */
+//@Configuration
+public class SpringTransactionConfig {
+	
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+	
+	/**
+	 *
+	 * @Descripton 事务拦截规则
+	 * @author 胡鹏
+	 * @date 2020年7月6日 下午4:57:51
+	 * @return
+	 */
+	@Bean("myTransactionAttributeSource")
+	public TransactionAttributeSource transactionAttributeSource() {
+		NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+		// 只读事务
+		RuleBasedTransactionAttribute readOnlyTx = new RuleBasedTransactionAttribute();
+		readOnlyTx.setReadOnly(true);
+		readOnlyTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+		
+		// 读写事务
+		RuleBasedTransactionAttribute requiredTx = new RuleBasedTransactionAttribute();
+		requiredTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+		//只要遇到异常都回滚
+		requiredTx.setRollbackRules(Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
+		
+		Map<String, TransactionAttribute> txMap = new LinkedHashMap<>();
+		txMap.put("save*", requiredTx);
+		txMap.put("*Save", requiredTx);
+		txMap.put("insert*", requiredTx);
+		txMap.put("*Insert", requiredTx);
+		txMap.put("add*", requiredTx);
+		txMap.put("*Add", requiredTx);
+		txMap.put("update*", requiredTx);
+		txMap.put("*Update", requiredTx);
+		txMap.put("edit*", requiredTx);
+		txMap.put("*Edit", requiredTx);
+		txMap.put("delete*", requiredTx);
+		txMap.put("*Delete", requiredTx);
+		txMap.put("del*", requiredTx);
+		txMap.put("*Del", requiredTx);
+		txMap.put("*", readOnlyTx);
+		source.setNameMap(txMap);
+		return source;
+	}
+	
+	
+	/**
+	 *
+	 * @Descripton 定义事务拦截器
+	 * @author 胡鹏
+	 * @date 2020年7月6日 下午5:00:02
+	 * @param transactionManager
+	 * @return
+	 */
+	@Bean("myTransactionInterceptor")
+	TransactionInterceptor myTransactionInterceptor() {
+		TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
+		transactionInterceptor.setTransactionManager(transactionManager);
+		transactionInterceptor.setTransactionAttributeSource(transactionAttributeSource());
+		return transactionInterceptor;
+	}
+	
+	
+	/**
+	 *
+	 * @Descripton 定义advisor
+	 * @author 胡鹏
+	 * @date 2020年7月6日 下午9:25:56
+	 * @return
+	 */
+	@Bean("myTransactionAdvisor")
+	AspectJExpressionPointcutAdvisor myTransactionAdvisor() {
+		AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
+		advisor.setAdvice(myTransactionInterceptor());
+		advisor.setExpression("execution(* *..*Service.*(..))");
+		// 该order参数很关键，小于0的advisor会在事务之内执行，大于0的会在事务之外执行
+		advisor.setOrder(0);
+		return advisor;
+	}
+}

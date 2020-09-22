@@ -1,0 +1,43 @@
+package com.hp.core.config;
+
+import java.util.List;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import org.springframework.boot.convert.ApplicationConversionService;
+
+import com.hp.common.core.serializer.jackson.JacksonObjectMapper;
+import com.hp.common.web.converter.StringToDateConverter;
+
+/**
+ * springMVC自定义配置
+ * @author 胡鹏
+ *
+ */
+//@Configuration
+public class SpringMvcConfig implements WebMvcConfigurer{
+	
+	/**
+	 * 默认数据类型转换器在如下方法中：
+	 * @see ApplicationConversionService#configure(FormatterRegistry)
+	 * */
+	// 添加自定义数据类型转换器
+	@Override
+	public void addFormatters(FormatterRegistry registry) {
+		registry.addConverter(new StringToDateConverter());
+	}
+	
+	// 添加消息转换器
+	@Override
+	public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+		JacksonObjectMapper objectMapper = new JacksonObjectMapper();
+		MappingJackson2HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter(objectMapper);
+		// 这边要将自定义的jsonConver放在第一个，这样处理数据的时候就会先用自定义的
+		converters.add(0, jacksonConverter);
+	}
+	
+}
